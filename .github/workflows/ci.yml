@@ -34,6 +34,5 @@ jobs:
       with:
         username: ${{ secrets.GITHUB_ACTOR }}
         password: ${{ secrets.GITHUB_TOKEN }}
-        repository: myorg/myrepository
         repository: docker.pkg.github.com/jvrplmlmn/go-greeter/greeter
         tags: latest
