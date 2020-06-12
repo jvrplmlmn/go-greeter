@@ -25,17 +25,18 @@ type Config struct {
 func main() {
 	log.Println("Starting greeter service ...")
 
+	// Load the service configuration from environment variables
 	var c Config
 	if err := envconfig.Process("greeter", &c); err != nil {
 		log.Fatalf("Failed to process config from environment variables: %s", err)
 	}
 
-	greeter := NewGreeter(c.Greeting)
-
+	// Configure the HTTP multiplexer
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", HealthzHandler)
-	mux.HandleFunc("/greet", greeter.Handler)
+	mux.HandleFunc("/greet", NewGreeter(c.Greeting).Handler)
 
+	// Configure the HTTP server
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(c.Host, c.Port),
 		Handler: mux,
