@@ -1,9 +1,14 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/kelseyhightower/envconfig"
 )
@@ -11,6 +16,8 @@ import (
 type Config struct {
 	Host string
 	Port string `required:"true"`
+
+	ShutdownTimeout time.Duration `default:"5s"`
 
 	Greeting string `required:"true"`
 }
@@ -34,7 +41,29 @@ func main() {
 		Handler: mux,
 	}
 
-	log.Fatal(httpServer.ListenAndServe())
+	// Start listening from connections and serve traffic
+	go func() {
+		if err := httpServer.ListenAndServe(); err != nil {
+			log.Fatalf("Error shutting down server: %s", err)
+		}
+	}()
+
+	// Capture the system signals
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+
+	// Block until we receive it
+	<-signalChan
+	log.Println("Shutdown signal received, exiting...")
+
+	// Configure a shutdown timeout
+	ctx, cancel := context.WithTimeout(context.Background(), c.ShutdownTimeout)
+	defer cancel()
+
+	// Attempt to gracefully shutdown the server
+	if err := httpServer.Shutdown(ctx); err != nil {
+		log.Fatalf("Failed to gracefully shutdown the server: %s", err)
+	}
 }
 
 func HealthzHandler(w http.ResponseWriter, _ *http.Request) {
