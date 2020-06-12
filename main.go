@@ -11,6 +11,8 @@ import (
 type Config struct {
 	Host string
 	Port string `required:"true"`
+
+	Greeting string `required:"true"`
 }
 
 func main() {
@@ -21,10 +23,11 @@ func main() {
 		log.Fatalf("Failed to process config from environment variables: %s", err)
 	}
 
-	mux := http.NewServeMux()
+	greeter := NewGreeter(c.Greeting)
 
+	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", HealthzHandler)
-	mux.HandleFunc("/greet", GreeterHandler)
+	mux.HandleFunc("/greet", greeter.Handler)
 
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(c.Host, c.Port),
@@ -38,6 +41,14 @@ func HealthzHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Write([]byte("OK"))
 }
 
-func GreeterHandler(w http.ResponseWriter, _ *http.Request) {
-	w.Write([]byte("Hello!"))
+type Greeter struct {
+	message string
+}
+
+func NewGreeter(message string) *Greeter {
+	return &Greeter{message: message}
+}
+
+func (g *Greeter) Handler(w http.ResponseWriter, _ *http.Request) {
+	w.Write([]byte(g.message))
 }
