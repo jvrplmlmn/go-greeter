@@ -32,7 +32,7 @@ jobs:
     - name: Build and push to GitHubs Docker Registry
       uses: docker/build-push-action@v1
       with:
-        username: ${{ secrets.GITHUB_ACTOR }}
+        username: ${{ GITHUB_ACTOR }}
         password: ${{ secrets.GITHUB_TOKEN }}
-        repository: docker.pkg.github.com/jvrplmlmn/go-greeter/greeter
+        repository: docker.pkg.github.com/${{ GITHUB_REPOSITORY }}/go-greeter/greeter
         tags: latest
