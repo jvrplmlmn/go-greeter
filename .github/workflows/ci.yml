@@ -29,5 +29,11 @@ jobs:
     - name: Test
       run: go test -v .
 
-    - name: Build
-      run: go build -v .
+    - name: Build and push to Dockerhub
+      uses: docker/build-push-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        repository: jvrplmlmn/greeter
+        tag_with_sha: true
+        tag_with_ref: true
