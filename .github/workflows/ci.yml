@@ -29,10 +29,10 @@ jobs:
     - name: Test
       run: go test -v .
 
-    - name: Build and push to GitHubs Docker Registry
+    - name: Build and push to Dockerhub
       uses: docker/build-push-action@v1
       with:
-        username: ${{ GITHUB_ACTOR }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-        repository: docker.pkg.github.com/${{ GITHUB_REPOSITORY }}/go-greeter/greeter
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        repository: jvrplmlmn/greeter
         tags: latest
