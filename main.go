@@ -2,11 +2,24 @@ package main
 
 import (
 	"log"
+	"net"
 	"net/http"
+
+	"github.com/kelseyhightower/envconfig"
 )
+
+type Config struct {
+	Host string
+	Port string `required:"true"`
+}
 
 func main() {
 	log.Println("Starting greeter service ...")
+
+	var c Config
+	if err := envconfig.Process("greeter", &c); err != nil {
+		log.Fatalf("Failed to process config from environment variables: %s", err)
+	}
 
 	mux := http.NewServeMux()
 
@@ -14,7 +27,7 @@ func main() {
 	mux.HandleFunc("/greet", GreeterHandler)
 
 	httpServer := &http.Server{
-		Addr:    ":8080",
+		Addr:    net.JoinHostPort(c.Host, c.Port),
 		Handler: mux,
 	}
 
