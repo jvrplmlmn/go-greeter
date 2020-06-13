@@ -17,6 +17,8 @@ type Config struct {
 	Host string
 	Port string `required:"true"`
 
+	Endpoint string `default:"/greet"`
+
 	ShutdownTimeout time.Duration `default:"5s"`
 
 	Greeting string `required:"true"`
@@ -34,7 +36,7 @@ func main() {
 	// Configure the HTTP multiplexer
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", HealthzHandler)
-	mux.HandleFunc("/greet", NewGreeter(c.Greeting).Handler)
+	mux.HandleFunc(c.Endpoint, NewGreeter(c.Greeting).Handler)
 
 	// Configure the HTTP server
 	httpServer := &http.Server{
